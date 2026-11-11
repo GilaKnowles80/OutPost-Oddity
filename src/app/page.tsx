@@ -632,7 +632,7 @@ export default function OutpostOddityGame() {
 
   return (
     <AudioContextProvider>
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 font-sans">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 font-sans ${user && user.userType === 'free_with_ads' ? 'pb-24' : ''}`}>
       <SpaceBackground />
       <header className="max-w-5xl mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
