@@ -69,6 +69,15 @@ const audioContext = React.createContext<{
 
 export function useAudio() {
   const ctx = React.useContext(audioContext);
-  if (!ctx) throw new Error('useAudio must be used within AudioContextProvider');
+  if (!ctx) {
+    // Fallback for server-side rendering
+    return {
+      isPlaying: false,
+      isMuted: false,
+      toggleAudio: () => {},
+      playSfx: () => {},
+      bgmRef: { current: null },
+    };
+  }
   return ctx;
 }
