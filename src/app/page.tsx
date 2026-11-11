@@ -639,13 +639,16 @@ export default function OutpostOddityGame() {
               <p className="text-slate-400 text-xs">Chronicles of the Shattered Cosmos — 200 Episodes</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur">
-              <span className={`w-2 h-2 rounded-full ${season.includes('Winter') ? 'bg-cyan-400 animate-pulse' : season.includes('Spooky') ? 'bg-purple-400 animate-pulse' : season.includes('Spring') ? 'bg-green-400 animate-pulse' : season.includes('Summer') ? 'bg-orange-400 animate-pulse' : 'bg-slate-400 animate-pulse'}`}></span>
-              <span className="text-xs font-medium text-slate-300">{season?.replace(/_/g, ' ') || 'Standard'}</span>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur flex-shrink-0">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur">
+                <span className={`w-2 h-2 rounded-full ${season.includes('Winter') ? 'bg-cyan-400 animate-pulse' : season.includes('Spooky') ? 'bg-purple-400 animate-pulse' : season.includes('Spring') ? 'bg-green-400 animate-pulse' : season.includes('Summer') ? 'bg-orange-400 animate-pulse' : 'bg-slate-400 animate-pulse'}`}></span>
+                <span className="text-xs font-medium text-slate-300">{season?.replace(/_/g, ' ') || 'Standard'}</span>
+              </div>
             </div>
+            <div className="flex-1"></div>
             {user ? (
-              <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur">
+              <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur flex-shrink-0">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
                   {user.username?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
@@ -656,7 +659,7 @@ export default function OutpostOddityGame() {
                 <button onClick={() => setGameMode('dashboard')} className="text-xs text-purple-400 hover:text-purple-300">Dashboard</button>
               </div>
             ) : (
-              <button onClick={() => setGameMode('auth')} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-medium rounded-lg transition-all">
+              <button onClick={() => setGameMode('auth')} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-medium rounded-lg transition-all flex-shrink-0">
                 👑 Premium Login
               </button>
             )}
