@@ -35,4 +35,8 @@ If OutPost-Oddity helps you track your digital maps and optimize your setups, co
 [![Liberapay](https://img.shields.io/badge/Liberapay-Donate-yellow?logo=liberapay)](https://liberapay.com/GilaKnowles80/)
 
 ---
-Maintained by [@GilaKnowles80](https://github.com). with MIT License
+Maintained by [@GilaKnowles80](https://github.com/GilaKnowles80).
+
+**Authors:** Gila Cain Knowles, Arda Tayfun Gul, Catherine Cain Knowles
+
+License: MIT License — see LICENSE file for full details.
