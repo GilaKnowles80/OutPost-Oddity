@@ -137,6 +137,15 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
         Don't have an account?{' '}
         <button onClick={() => setMode('register')} className="text-purple-400 underline">Create Account</button>
       </p>
+      <div className="mt-4 pt-4 border-t border-slate-700/50">
+        <p className="text-xs text-slate-500 text-center mb-2">Or play without an account</p>
+        <button onClick={() => {
+          setUser({ id: 'guest', username: 'Guest Player', email: 'guest@outpost-oddity.com', userType: 'free_with_ads', isAdmin: false, isPremium: false, tokenBalance: 0 });
+          onLogin?.({ id: 'guest', username: 'Guest Player', email: 'guest@outpost-oddity.com', userType: 'free_with_ads', isAdmin: false, isPremium: false, tokenBalance: 0 });
+        }} className="w-full py-3 font-bold rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition-all">
+          🎮 Play as Guest
+        </button>
+      </div>
     </div>
   );
 
