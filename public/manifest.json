@@ -1,0 +1,82 @@
+{
+  "name": "Outpost Oddity",
+  "short_name": "Outpost Oddity",
+  "description": "Dr. Aris Thorne's 200-episode odyssey across the shattered cosmos - comedic sci-fi text and puzzle adventure game.",
+  "start_url": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#8b5cf6",
+  "id": "/",
+  "categories": ["games", "entertainment", "puzzle"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-wide.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Outpost Oddity mobile gameplay"
+    },
+    {
+      "src": "/screenshots/tablet-wide.png",
+      "sizes": "834x1194",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Outpost Oddity tablet gameplay"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Game",
+      "short_name": "Play",
+      "description": "Start playing Outpost Oddity",
+      "url": "/",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Premium Account",
+      "short_name": "Premium",
+      "description": "Subscribe to Outpost Oddity Premium",
+      "url": "/premium",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

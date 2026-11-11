@@ -1,0 +1,19 @@
+declare namespace NodeJS {
+  interface ProcessEnv {
+    NEXT_PUBLIC_PAYPAL_CLIENT_ID: string;
+    NEXT_PUBLIC_PAYPAL_SUBSCRIPTION_PLAN_ID_MONTHLY: string;
+    NEXT_PUBLIC_PAYPAL_SUBSCRIPTION_PLAN_ID_YEARLY: string;
+    PAYPAL_CLIENT_ID: string;
+    PAYPAL_SECRET_KEY: string;
+    PAYPAL_ENVIRONMENT: 'sandbox' | 'live';
+    PAYPAL_WEBHOOK_ID: string;
+    PAYPAL_BUSINESS_EMAIL: string;
+    PAYPAL_SUBSCRIPTION_PLAN_ID_MONTHLY: string;
+    PAYPAL_SUBSCRIPTION_PLAN_ID_YEARLY: string;
+    SUBSCRIPTION_MONTHLY_PRICE: string;
+    SUBSCRIPTION_YEARLY_PRICE: string;
+    DATABASE_URL: string;
+    NEXTAUTH_URL: string;
+    NEXTAUTH_SECRET: string;
+  }
+}
