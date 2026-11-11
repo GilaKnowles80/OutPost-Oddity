@@ -545,7 +545,7 @@ export default function OutpostOddityGame() {
             Outpost Oddity — Episode {currentEpisode} of 200 • {season.replace(/_/g, ' ')} Season
           </p>
           <p className="text-xs text-slate-600 mt-1">
-            © 2026 Gila Arayan Cain Gul, Arda Tayfun Gul, Catherine Arayan Cain Knowles — MIT License
+            © 2026 Gila Cain Knowles, Arda Tayfun Gul, Catherine Cain Knowles — MIT License — OutPost Oddity™
           </p>
           <p className="text-xs text-slate-600">
             Customer Support: <span className="text-purple-400 font-mono underline">gilaknowles80@gmail.com</span>

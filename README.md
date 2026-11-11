@@ -40,3 +40,5 @@ Maintained by [@GilaKnowles80](https://github.com/GilaKnowles80).
 **Authors:** Gila Cain Knowles, Arda Tayfun Gul, Catherine Cain Knowles
 
 License: MIT License — see LICENSE file for full details.
+
+OutPost Oddity™
