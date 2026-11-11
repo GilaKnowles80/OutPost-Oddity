@@ -59,6 +59,23 @@ export async function POST(request: Request) {
       resolvedUserType = 'admin';
     }
 
+    // Safety migration: ensure magic_link columns exist
+    try {
+      await query(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'magic_link_token') THEN
+            ALTER TABLE premium_users ADD COLUMN magic_link_token VARCHAR(255);
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'magic_link_expires_at') THEN
+            ALTER TABLE premium_users ADD COLUMN magic_link_expires_at TIMESTAMP WITH TIME ZONE;
+          END IF;
+        END $$;
+      `);
+    } catch (migErr) {
+      console.error('Safety migration warning:', migErr);
+    }
+
     // Check if user already exists
     const existingUser = await query(
       'SELECT id FROM premium_users WHERE email = $1',
@@ -135,7 +152,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Registration error:', error);
     return NextResponse.json(
-      { success: false, error: 'Registration failed. Please try again.' },
+      { success: false, error: error.message || 'Registration failed. Please try again.' },
       { status: 500 }
     );
   }
