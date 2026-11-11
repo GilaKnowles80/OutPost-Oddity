@@ -5,6 +5,8 @@ import { Ghost, MoveUpRight, Trophy } from 'lucide-react';
 import AuthPortal from '@/components/PremiumAuth';
 import AdminDashboard from '@/components/AdminDashboard';
 import AdBanner from '@/components/AdBanner';
+import SpaceBackground from '@/components/SpaceBackground';
+import AudioContextProvider, { useAudio } from '@/components/AudioProvider';
 
 interface LevelContent {
   id: number;
@@ -241,6 +243,7 @@ export default function OutpostOddityGame() {
   const [logs, setLogs] = useState<string[]>(["System initialized. Welcome to Outpost Oddity!"]);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const { isMuted, toggleAudio } = useAudio();
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
@@ -627,7 +630,9 @@ export default function OutpostOddityGame() {
   );
 
   return (
+    <AudioContextProvider>
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 font-sans">
+      <SpaceBackground />
       <header className="max-w-5xl mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
@@ -635,7 +640,7 @@ export default function OutpostOddityGame() {
               <Ghost className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className={`text-2xl md:text-3xl font-bold text-white tracking-tight`}>Outpost Oddity</h1>
+              <h1 className={`text-2xl md:text-3xl font-bold text-white tracking-tight neon-text`}>Outpost Oddity</h1>
               <p className="text-slate-400 text-xs">Chronicles of the Shattered Cosmos — 200 Episodes</p>
             </div>
           </div>
@@ -663,6 +668,13 @@ export default function OutpostOddityGame() {
                 👑 Premium Login
               </button>
             )}
+            <button
+              onClick={toggleAudio}
+              className="p-2 bg-slate-800/50 rounded-full border border-slate-700/50 hover:bg-purple-500/30 flex-shrink-0"
+              title={isMuted ? 'Unmute Music' : 'Mute Music'}
+            >
+              {isMuted ? '🔇' : '🔊'}
+            </button>
           </div>
         </div>
       </header>
@@ -673,6 +685,7 @@ export default function OutpostOddityGame() {
       {gameMode === 'admin' && <AdminView />}
       {gameMode === 'completed' && <CompletedView />}
     </div>
+    </AudioContextProvider>
   );
 }
 
