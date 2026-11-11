@@ -22,7 +22,7 @@ const PLANS: PlanOption[] = [
 ];
 
 export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthProps) {
-  const [mode, setMode] = useState<'login' | 'register' | 'magic-sent'>('login');
+  const [mode, setMode] = useState<'login' | 'register'>('login');
   const [tier, setTier] = useState<'admin' | 'free_with_ads' | 'premium'>(defaultTier);
   const [user, setUser] = useState<any>(null);
   const [error, setError] = useState('');
@@ -34,50 +34,41 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
   const [isScriptReady, setIsScriptReady] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
   const [adminCode, setAdminCode] = useState('');
-  const [magicLinkUrl, setMagicLinkUrl] = useState('');
 
-  const requestMagicLink = async (e: React.FormEvent<HTMLFormElement>, isRegister: boolean) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const body: any = { email: formData.get('email'), user_type: tier, isRegister };
-    if (isRegister) {
+    const body: any = {
+      email: formData.get('email'),
+      password: formData.get('password'),
+      user_type: tier,
+    };
+    if (mode === 'register') {
       body.username = formData.get('username');
       body.country = formData.get('country') || 'US';
       body.currency = formData.get('currency') || 'USD';
       if (tier === 'admin') body.admin_code = adminCode;
     }
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(mode === 'register' ? '/api/auth/register' : '/api/auth/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       });
       const data = await res.json();
       if (data.success) {
-        setMagicLinkUrl(data.magicLinkUrl || '');
-        setMode('magic-sent');
+        if (mode === 'register') {
+          setMode('login');
+          setError('Account created. Please sign in.');
+        } else {
+          setUser(data.user);
+          onLogin?.(data.user);
+        }
       } else {
-        setError(data.error || 'Failed to send magic link');
-        setLoading(false);
+        setError(data.error || 'Error');
       }
-    } catch { setError('Network error'); setLoading(false); }
-  };
-
-  const verifyMagicLink = async () => {
-    if (!magicLinkUrl) return;
-    setLoading(true);
-    try {
-      const token = magicLinkUrl.split('token=')[1];
-      const res = await fetch(`/api/auth/magic-login?token=${token}`);
-      const data = await res.json();
-      if (data.success) {
-        setUser(data.user);
-        onLogin?.(data.user);
-      } else {
-        setError(data.error || 'Magic link verification failed');
-        setLoading(false);
-      }
-    } catch { setError('Network error'); setLoading(false); }
+    } catch { setError('Network error'); }
+    finally { setLoading(false); }
   };
 
   const initiateBankTransfer = async (amount: number) => {
@@ -89,7 +80,7 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
       });
       const data = await res.json();
       if (data.success) setBankDetails(data.bankDetails);
-      else setError(data.error || 'Transfer initiation failed');
+      else setError(data.error || 'Transfer failed');
     } catch { setError('Network error'); } finally { setTransferLoading(false); }
   };
 
@@ -112,16 +103,11 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
               plan_id: process.env.NEXT_PUBLIC_PAYPAL_SUBSCRIPTION_PLAN_ID_MONTHLY || 'P-9HB32711U44621012NLSC37I',
             });
           },
-          onApprove: function() {
-            setSubscriptionLoading(false);
-          },
-          onError: function() {
-            setError('Subscription failed');
-            setSubscriptionLoading(false);
-          },
+          onApprove: function() { setSubscriptionLoading(false); },
+          onError: function() { setError('Subscription failed'); setSubscriptionLoading(false); },
         }).render(paypalButtonRef.current);
       } else {
-        setError(data.error || 'Failed to create subscription');
+        setError(data.error || 'Subscription failed');
         setSubscriptionLoading(false);
       }
     } catch { setError('Network error'); setSubscriptionLoading(false); }
@@ -131,16 +117,20 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
     <div className="bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-700 w-full max-w-md">
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">👋 Welcome Back</h1>
-        <p className="text-slate-400 text-sm">Enter your email to receive a magic link</p>
+        <p className="text-slate-400 text-sm">Sign in to your Outpost Oddity account</p>
       </div>
       {error && <div className="mb-4 p-2 bg-red-500/20 text-red-400 rounded text-sm text-center">{error}</div>}
-      <form onSubmit={(e) => requestMagicLink(e, false)} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-sm text-slate-300 mb-1">Email</label>
           <input type="email" name="email" required className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-white focus:ring-purple-500" />
         </div>
+        <div>
+          <label className="block text-sm text-slate-300 mb-1">Password</label>
+          <input type="password" name="password" required minLength={6} className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-white focus:ring-purple-500" />
+        </div>
         <button type="submit" disabled={loading} className={`w-full py-3 font-bold rounded-lg transition-all ${loading ? 'opacity-50' : 'bg-purple-600 hover:bg-purple-500 text-white'}`}>
-          {loading ? 'Sending...' : 'Send Magic Link'}
+          {loading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
       <p className="text-center mt-4 text-slate-400 text-sm">
@@ -176,7 +166,7 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
         </div>
       </div>
 
-      <form onSubmit={(e) => requestMagicLink(e, true)} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-sm text-slate-300 mb-1">Email</label>
           <input type="email" name="email" required className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-white focus:ring-purple-500" />
@@ -185,6 +175,10 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
           <label className="block text-sm text-slate-300 mb-1">Username</label>
           <input type="text" name="username" required className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-white focus:ring-purple-500" />
         </div>
+        <div>
+          <label className="block text-sm text-slate-300 mb-1">Password</label>
+          <input type="password" name="password" required minLength={6} className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded text-white focus:ring-purple-500" />
+        </div>
         {tier === 'admin' && (
           <div>
             <label className="block text-sm text-slate-300 mb-1">Admin Staff Code</label>
@@ -192,36 +186,34 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
             <p className="text-[10px] text-slate-500 mt-1">Staff code required for admin access</p>
           </div>
         )}
+        {tier === 'premium' && (
+          <div className="bg-slate-800/30 rounded-lg p-3 mb-4 border border-purple-500/30">
+            <p className="text-xs text-slate-400 mb-2">✨ Premium includes:</p>
+            <ul className="text-xs text-slate-300 list-disc pl-4 space-y-1">
+              <li>No ads</li>
+              <li>All 200 episodes unlocked</li>
+              <li>Priority support</li>
+              <li>Admin dashboard access</li>
+            </ul>
+          </div>
+        )}
+        {tier === 'free_with_ads' && (
+          <div className="bg-slate-800/30 rounded-lg p-3 mb-4 border border-blue-500/30">
+            <p className="text-xs text-slate-400 mb-2">📺 Free tier includes:</p>
+            <ul className="text-xs text-slate-300 list-disc pl-4 space-y-1">
+              <li>Ad-supported gameplay</li>
+              <li>All 200 episodes</li>
+              <li>Standard support</li>
+            </ul>
+          </div>
+        )}
         <button type="submit" disabled={loading} className={`w-full py-3 font-bold rounded-lg transition-all ${loading ? 'opacity-50' : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white'}`}>
-          {loading ? 'Creating...' : 'Create Account & Send Magic Link'}
+          {loading ? 'Creating...' : 'Create Account'}
         </button>
       </form>
       <p className="text-center mt-4 text-slate-400 text-sm">
         Already have an account?{' '}
         <button onClick={() => setMode('login')} className="text-purple-400 underline">Sign In</button>
-      </p>
-    </div>
-  );
-
-  const MagicSentView = () => (
-    <div className="bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-700 w-full max-w-md">
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-white mb-2">🔗 Magic Link Sent</h1>
-        <p className="text-slate-400 text-sm">Click the magic link in your email</p>
-      </div>
-      <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 mb-6">
-        <p className="text-xs text-slate-400 uppercase font-bold mb-2">Magic Link</p>
-        <div className="flex gap-2">
-          <input type="text" value={magicLinkUrl} readOnly className="flex-1 px-3 py-2 bg-slate-900 border border-slate-600 rounded text-xs text-cyan-400 font-mono break-all" />
-          <button onClick={() => { navigator.clipboard.writeText(magicLinkUrl); setError('Copied!'); }} className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded text-xs font-bold">Copy</button>
-        </div>
-        <p className="text-[10px] text-slate-500 mt-2 text-center">Link expires in 15 minutes</p>
-      </div>
-      <button onClick={verifyMagicLink} disabled={loading} className={`w-full py-3 font-bold rounded-lg transition-all ${loading ? 'opacity-50' : 'bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white'}`}>
-        {loading ? 'Verifying...' : 'I Clicked the Magic Link'}
-      </button>
-      <p className="text-center mt-4 text-slate-400 text-sm">
-        <button onClick={() => setMode('login')} className="text-purple-400 underline">Back to Login</button>
       </p>
     </div>
   );
@@ -310,7 +302,7 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 md:p-8">
-      {mode === 'login' ? <LoginView /> : mode === 'magic-sent' ? <MagicSentView /> : <RegisterView />}
+      {mode === 'login' ? <LoginView /> : <RegisterView />}
     </div>
   );
 }
