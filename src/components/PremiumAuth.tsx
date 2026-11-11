@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Script from 'next/script';
+import { useMagicWallet } from '@/components/MagicWallet';
 
 interface AuthProps {
   onLogin?: (user: any) => void;
@@ -43,6 +44,7 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
   const [magicLoading, setMagicLoading] = useState(false);
   const [magicLinkUrl, setMagicLinkUrl] = useState('');
   const [magicToken, setMagicToken] = useState('');
+  const { address: walletAddress, getOrCreateWallet: createWallet } = useMagicWallet();
   const paypalButtonRef = useRef<HTMLDivElement>(null);
   const [subscriptionCreated, setSubscriptionCreated] = useState(false);
   const [isScriptReady, setIsScriptReady] = useState(false);
@@ -95,6 +97,15 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
       const res = await fetch(`/api/auth/magic-login?token=${magicToken}`);
       const data = await res.json();
       if (data.success) {
+        // Create Ethereum wallet after successful login
+        try {
+          const walletAddr = await createWallet(data.user.id || magicToken);
+          if (walletAddr) {
+            setError((prev) => prev ? prev + ' • Wallet created: ' + walletAddr : 'Wallet created: ' + walletAddr);
+          }
+        } catch (walletErr) {
+          console.error('Wallet creation error:', walletErr);
+        }
         setUser(data.user);
         onLogin?.(data.user);
       } else {
@@ -392,7 +403,7 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
         <div className="bg-slate-800 p-3 rounded-lg border border-slate-700">
           <span className="text-xs text-slate-400 uppercase font-bold">Username</span><br/><span className="text-white text-sm">{user.username}</span>
         </div>
@@ -404,6 +415,9 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
         </div>
         <div className="bg-slate-800 p-3 rounded-lg border border-slate-700">
           <span className="text-xs text-slate-400 uppercase font-bold">Tokens</span><br/><span className="text-white font-mono text-sm">{user.tokenBalance} 🪙</span>
+        </div>
+        <div className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+          <span className="text-xs text-slate-400 uppercase font-bold">Ethereum Wallet</span><br/><span className="text-white font-mono text-xs truncate">{walletAddress || 'Creating on login...'}</span>
         </div>
       </div>
 
