@@ -59,6 +59,7 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthPro
     const body: any = {
       email: formData.get('email'),
       user_type: tier,
+      isRegister,
     };
     if (isRegister) {
       body.username = formData.get('username');

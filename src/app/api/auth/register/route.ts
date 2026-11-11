@@ -17,12 +17,20 @@ function generateMagicLinkUrl(token: string): string {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, username, country = 'US', currency = 'USD', user_type = 'free_with_ads', admin_code } = body;
+    const { email, username, country = 'US', currency = 'USD', user_type = 'free_with_ads', admin_code, isRegister = false } = body;
 
     // Validate input
-    if (!email || !username) {
+    if (!email) {
       return NextResponse.json(
-        { success: false, error: 'Email and username are required' },
+        { success: false, error: 'Email is required' },
+        { status: 400 }
+      );
+    }
+
+    // For registration, username is required
+    if (isRegister && !username) {
+      return NextResponse.json(
+        { success: false, error: 'Username is required for new accounts' },
         { status: 400 }
       );
     }
@@ -124,6 +132,22 @@ export async function POST(request: Request) {
           isPremium: user.is_premium,
         },
       });
+    }
+
+    // User doesn't exist — if this is a login request, tell them to create an account
+    if (!isRegister) {
+      return NextResponse.json(
+        { success: false, error: 'No account found with this email. Please create an account first.' },
+        { status: 404 }
+      );
+    }
+
+    // For registration, username is required
+    if (!username) {
+      return NextResponse.json(
+        { success: false, error: 'Username is required for new accounts' },
+        { status: 400 }
+      );
     }
 
     // Create new user with magic link (no password)
