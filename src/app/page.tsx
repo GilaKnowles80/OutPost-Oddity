@@ -243,6 +243,7 @@ export default function OutpostOddityGame() {
   const [logs, setLogs] = useState<string[]>(["System initialized. Welcome to Outpost Oddity!"]);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [tier, setTier] = useState<'admin' | 'free_with_ads' | 'premium'>('premium');
   const { isMuted, toggleAudio } = useAudio();
 
   useEffect(() => {
@@ -557,7 +558,7 @@ export default function OutpostOddityGame() {
 
   const AuthView = () => (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 md:p-8">
-      <AuthPortal onLogin={(u: any) => { setUser(u); setGameMode('menu'); }} />
+      <AuthPortal defaultTier={tier} onLogin={(u: any) => { setUser(u); setGameMode('menu'); }} />
     </div>
   );
 
@@ -664,9 +665,17 @@ export default function OutpostOddityGame() {
                 <button onClick={() => setGameMode('dashboard')} className="text-xs text-purple-400 hover:text-purple-300">Dashboard</button>
               </div>
             ) : (
-              <button onClick={() => setGameMode('auth')} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-medium rounded-lg transition-all flex-shrink-0">
-                👑 Premium Login
-              </button>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button onClick={() => setGameMode('auth')} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap">
+                  👑 Premium
+                </button>
+                <button onClick={() => { setTier('admin'); setGameMode('auth'); }} className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap">
+                  🛡️ Admin
+                </button>
+                <button onClick={() => { setTier('free_with_ads'); setGameMode('auth'); }} className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap">
+                  📺 Standard
+                </button>
+              </div>
             )}
             <button
               onClick={toggleAudio}

@@ -5,6 +5,7 @@ import Script from 'next/script';
 
 interface AuthProps {
   onLogin?: (user: any) => void;
+  defaultTier?: 'admin' | 'free_with_ads' | 'premium';
 }
 
 interface PlanOption {
@@ -31,9 +32,9 @@ const PLANS: PlanOption[] = [
   },
 ];
 
-export default function AuthPortal({ onLogin }: AuthProps) {
+export default function AuthPortal({ onLogin, defaultTier = 'premium' }: AuthProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [tier, setTier] = useState<'admin' | 'free_with_ads' | 'premium'>('free_with_ads');
+  const [tier, setTier] = useState<'admin' | 'free_with_ads' | 'premium'>(defaultTier);
   const [user, setUser] = useState<any>(null);
   const [error, setError] = useState('');
   const [bankDetails, setBankDetails] = useState<any>(null);
