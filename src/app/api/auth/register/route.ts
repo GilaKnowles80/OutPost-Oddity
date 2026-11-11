@@ -53,19 +53,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Admin registration requires a secret code
     let isAdmin = false;
     let resolvedUserType = user_type;
-    if (user_type === 'admin') {
-      if (!admin_code || admin_code !== ADMIN_REGISTRATION_CODE) {
-        return NextResponse.json(
-          { success: false, error: 'Invalid admin registration code' },
-          { status: 403 }
-        );
-      }
-      isAdmin = true;
-      resolvedUserType = 'admin';
-    }
 
     // Safety migration: ensure all required columns exist
     try {
@@ -148,6 +137,17 @@ export async function POST(request: Request) {
         { success: false, error: 'Username is required for new accounts' },
         { status: 400 }
       );
+    }
+
+    // Admin registration requires a secret code
+    if (resolvedUserType === 'admin') {
+      if (!admin_code || admin_code !== ADMIN_REGISTRATION_CODE) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid admin registration code' },
+          { status: 403 }
+        );
+      }
+      isAdmin = true;
     }
 
     // Create new user with magic link (no password)
