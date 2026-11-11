@@ -8,13 +8,14 @@ export const PREMIUM_USERS_SCHEMA = `
   CREATE TABLE IF NOT EXISTS premium_users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
     username VARCHAR(100) NOT NULL,
     country VARCHAR(2) NOT NULL DEFAULT 'US',
     currency VARCHAR(3) NOT NULL DEFAULT 'USD',
     user_type VARCHAR(20) NOT NULL DEFAULT 'free_with_ads', -- 'admin', 'free_with_ads', 'premium'
     is_admin BOOLEAN DEFAULT FALSE,
     is_premium BOOLEAN DEFAULT FALSE,
+    magic_link_token VARCHAR(255),
+    magic_link_expires_at TIMESTAMP WITH TIME ZONE,
     premium_expires_at TIMESTAMP WITH TIME ZONE,
     token_balance INT DEFAULT 0,
     total_tokens_purchased INT DEFAULT 0,
@@ -81,6 +82,7 @@ export const SECURITY_INDEXES_SCHEMA = `
   CREATE INDEX IF NOT EXISTS idx_token_transactions_user_id ON token_transactions(user_id);
   CREATE INDEX IF NOT EXISTS idx_token_transactions_status ON token_transactions(status);
   CREATE INDEX IF NOT EXISTS idx_premium_users_email ON premium_users(email);
+  CREATE INDEX IF NOT EXISTS idx_premium_users_magic_link_token ON premium_users(magic_link_token);
   CREATE INDEX IF NOT EXISTS idx_premium_users_is_premium ON premium_users(is_premium);
   CREATE INDEX IF NOT EXISTS idx_premium_users_paypal_subscription_id ON premium_users(paypal_subscription_id);
   CREATE INDEX IF NOT EXISTS idx_premium_users_subscription_status ON premium_users(subscription_status);
@@ -94,6 +96,20 @@ export async function initializeDatabase(pool: Pool) {
     await client.query(PLAYER_ACTIVITY_SCHEMA);
     await client.query(ADMIN_AUDIT_LOG_SCHEMA);
     await client.query(SECURITY_INDEXES_SCHEMA);
+
+    // Migrate existing tables: add magic link columns if they don't exist
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'magic_link_token') THEN
+          ALTER TABLE premium_users ADD COLUMN magic_link_token VARCHAR(255);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'magic_link_expires_at') THEN
+          ALTER TABLE premium_users ADD COLUMN magic_link_expires_at TIMESTAMP WITH TIME ZONE;
+        END IF;
+      END $$;
+    `);
+
     console.log('✅ Database schema initialized successfully');
   } catch (error) {
     console.error('❌ Database schema initialization failed:', error);
