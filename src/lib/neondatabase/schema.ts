@@ -97,10 +97,19 @@ export async function initializeDatabase(pool: Pool) {
     await client.query(ADMIN_AUDIT_LOG_SCHEMA);
     await client.query(SECURITY_INDEXES_SCHEMA);
 
-    // Migrate existing tables: add magic link columns and make password nullable if they don't exist
+    // Migrate existing tables: add all missing columns
     await client.query(`
       DO $$
       BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'user_type') THEN
+          ALTER TABLE premium_users ADD COLUMN user_type VARCHAR(20) NOT NULL DEFAULT 'free_with_ads';
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'is_admin') THEN
+          ALTER TABLE premium_users ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'is_premium') THEN
+          ALTER TABLE premium_users ADD COLUMN is_premium BOOLEAN DEFAULT FALSE;
+        END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'magic_link_token') THEN
           ALTER TABLE premium_users ADD COLUMN magic_link_token VARCHAR(255);
         END IF;
