@@ -97,7 +97,7 @@ export async function initializeDatabase(pool: Pool) {
     await client.query(ADMIN_AUDIT_LOG_SCHEMA);
     await client.query(SECURITY_INDEXES_SCHEMA);
 
-    // Migrate existing tables: add magic link columns if they don't exist
+    // Migrate existing tables: add magic link columns and make password nullable if they don't exist
     await client.query(`
       DO $$
       BEGIN
@@ -106,6 +106,9 @@ export async function initializeDatabase(pool: Pool) {
         END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'magic_link_expires_at') THEN
           ALTER TABLE premium_users ADD COLUMN magic_link_expires_at TIMESTAMP WITH TIME ZONE;
+        END IF;
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'password_hash') THEN
+          ALTER TABLE premium_users ALTER COLUMN password_hash DROP NOT NULL;
         END IF;
       END $$;
     `);
