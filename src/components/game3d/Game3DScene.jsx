@@ -1,13 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars, ContactShadows } from '@react-three/drei';
-import SpaceCharacter from './SpaceCharacter';
+import TownshipCharacter from './TownshipCharacter';
+import Alien from './Alien';
+import AIRobot from './AIRobot';
+import GLTFModel from './GLTFModel';
 import PlanetTerrain from './PlanetTerrain';
 import OutpostStructures from './OutpostStructures';
 
+const CHARACTERS = [
+  { id: 'township', label: 'Township Character', component: <TownshipCharacter position={[-2, 0.6, 0]} color="#8b5cf6" /> },
+  { id: 'alien', label: 'Alien', component: <Alien position={[2, 0.6, 0]} color="#a855f7" /> },
+  { id: 'robot', label: 'AI Robot', component: <AIRobot position={[0, 0.6, 2]} color="#00ffff" /> },
+];
+
 export default function Game3DScene({ onExit }) {
+  const [selectedCharacter, setSelectedCharacter] = useState('township');
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950">
       {onExit && (
@@ -18,6 +29,21 @@ export default function Game3DScene({ onExit }) {
           ← Return to Menu
         </button>
       )}
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-50 flex gap-2 bg-black/70 p-3 rounded-lg border border-purple-500/50 backdrop-blur-sm shadow-xl">
+        {CHARACTERS.map(char => (
+          <button
+            key={char.id}
+            onClick={() => setSelectedCharacter(char.id)}
+            className={`px-4 py-2 rounded text-sm font-semibold transition-all ${
+              selectedCharacter === char.id
+                ? 'bg-purple-600 text-white shadow-lg'
+                : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-600'
+            }`}
+          >
+            {char.label}
+          </button>
+        ))}
+      </div>
       <Canvas
         shadows
         camera={{ position: [0, 6, 12], fov: 75 }}
@@ -28,7 +54,7 @@ export default function Game3DScene({ onExit }) {
         <Stars radius={150} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
         <PlanetTerrain />
         <OutpostStructures />
-        <SpaceCharacter position={[0, 0.6, 0]} />
+        {CHARACTERS.find(c => c.id === selectedCharacter)?.component}
         <OrbitControls makeDefault />
         <ContactShadows opacity={0.5} scale={10} blur={2} far={3.5} />
       </Canvas>
@@ -38,6 +64,7 @@ export default function Game3DScene({ onExit }) {
           <div>WASD — Move</div>
           <div>Drag — Look Around</div>
           <div>Scroll — Zoom</div>
+          <div className="mt-1">Selected: {CHARACTERS.find(c => c.id === selectedCharacter)?.label}</div>
         </div>
       </div>
     </div>
