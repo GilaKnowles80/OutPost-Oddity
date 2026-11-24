@@ -295,7 +295,7 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }) {
           className={`w-full py-3 font-bold rounded-lg transition-all ${
             loading
               ? 'opacity-50'
-              : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white'
+              : 'bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white'
           }`}
         >
           {loading ? 'Creating...' : 'Create Account'}
@@ -399,7 +399,7 @@ export default function AuthPortal({ onLogin, defaultTier = 'premium' }) {
                     createPayPalSubscription(plan.type);
                   }}
                   disabled={subscriptionLoading}
-                  className="w-full py-2 px-3 rounded bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-medium transition-all"
+                  className="w-full py-2 px-3 rounded bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-medium transition-all"
                 >
                   {subscriptionLoading && selectedPlan === plan.type ? 'Loading...' : `Choose ${plan.label}`}
                 </button>

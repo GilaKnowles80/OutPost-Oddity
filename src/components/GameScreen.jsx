@@ -262,7 +262,7 @@ export function GameScreen() {
         </div>
       )}
       {seasonConfig.particles === 'heat_shimmer' && (
-        <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-b from-transparent via-orange-900/20 to-transparent" />
+        <div className="absolute inset-0 pointer-events-none z-0 bg-linear-to-b from-transparent via-orange-900/20 to-transparent" />
       )}
       {seasonConfig.particles === 'falling_golden_leaves' && (
         <div className="absolute inset-0 pointer-events-none z-0">
@@ -389,7 +389,7 @@ export function GameScreen() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-slate-900/90 backdrop-blur rounded-2xl border-2 border-purple-500/50 shadow-2xl overflow-hidden min-h-[500px]">
+            <div className="bg-slate-900/90 backdrop-blur rounded-2xl border-2 border-purple-500/50 shadow-2xl overflow-hidden min-h-125">
               <div className="p-8">
                 <div className="text-center mb-8">
                   <div className="text-6xl mb-4">{seasonConfig.icon}</div>

@@ -12,19 +12,14 @@ OutPost-Oddity is a specialized gaming exploration index and digital mapping uti
 
 1. *Clone the Repository:*
    bash
-   git clone https://github.com/GilaKnowles80/OutPost-Oddity.git
+   git clone `https://github.com/GilaKnowles80/OutPost-Oddity.git`
    cd OutPost-Oddity
-   
-
 2. *Install Dependencies:*
    bash
    npm install
-   
-
 3. *Build the Project:*
    bash
    npm run build
-   
 
 ## 💖 Support the Project
 

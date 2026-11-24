@@ -57,7 +57,7 @@ export function DialogueBox({ dialogue = [], onChoice, onComplete, className = '
         </div>
 
         {/* Dialogue text area */}
-        <div className="p-6 min-h-[120px] max-h-[200px] overflow-y-auto text-slate-200 text-lg leading-relaxed font-medium italic">
+        <div className="p-6 min-h-30 max-h-50 overflow-y-auto text-slate-200 text-lg leading-relaxed font-medium italic">
           <div ref={textRef}>
             {currentLine.text}
           </div>

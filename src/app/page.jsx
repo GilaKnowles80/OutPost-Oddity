@@ -297,7 +297,7 @@ export default function OutpostOddityGame() {
                   setCurrentLevel(1);
                   setGameMode('playing');
                 }}
-                className="w-full py-3 md:py-4 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-xl transition-all"
+                className="w-full py-3 md:py-4 px-4 bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-xl transition-all"
               >
                 Play Episode {ep}
               </button>
@@ -360,11 +360,11 @@ export default function OutpostOddityGame() {
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
               <button
                 onClick={() => setGameMode('menu')}
-                className="flex-1 md:flex-none px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-bold rounded-lg transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                className="flex-1 md:flex-none px-4 py-3 bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-bold rounded-lg transition-all shadow-[0_0_15px_rgba(168,85,247,0.4)]"
               >
                 🏠 Home
               </button>
-              <div className="flex-1 md:flex-none min-w-[200px]">
+              <div className="flex-1 md:flex-none min-w-50">
                 <label className="block text-xs text-slate-400 uppercase font-bold mb-1">Select Episode</label>
                 <select
                   value={currentEpisode}
@@ -382,7 +382,7 @@ export default function OutpostOddityGame() {
                   ))}
                 </select>
               </div>
-              <div className="flex-1 md:flex-none min-w-[150px]">
+              <div className="flex-1 md:flex-none min-w-37.5">
                 <label className="block text-xs text-slate-400 uppercase font-bold mb-1">Select Level</label>
                 <select
                   value={currentLevel}
@@ -440,7 +440,7 @@ export default function OutpostOddityGame() {
               {isLevelCompleted && isLastLevel && (
                 <button
                   onClick={handleNextLevel}
-                  className="px-6 py-4 md:px-8 md:py-4 font-bold rounded-xl bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.5)]"
+                  className="px-6 py-4 md:px-8 md:py-4 font-bold rounded-xl bg-linear-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.5)]"
                 >
                   {isLastEpisode ? '🏆 Finish Game' : '⏭️ Next Episode'}
                 </button>
@@ -601,7 +601,7 @@ export default function OutpostOddityGame() {
 
   return (
     <AudioContextProvider>
-      <div className={`min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 font-sans ${user && user.userType === 'free_with_ads' ? 'pb-24' : ''}`}>
+      <div className={`min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-800 font-sans ${user && user.userType === 'free_with_ads' ? 'pb-24' : ''}`}>
         <SpaceBackground />
         <header className="max-w-5xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -615,7 +615,7 @@ export default function OutpostOddityGame() {
               </div>
             </div>
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur flex-shrink-0">
+              <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur shrink-0">
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur">
                   <span
                     className={`w-2 h-2 rounded-full ${
@@ -635,8 +635,8 @@ export default function OutpostOddityGame() {
               </div>
               <div className="flex-1"></div>
               {user ? (
-                <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur flex-shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
+                <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 backdrop-blur shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-linear-to-r from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">
                     {user.username?.charAt(0)?.toUpperCase() || 'U'}
                   </div>
                   <div>
@@ -650,16 +650,16 @@ export default function OutpostOddityGame() {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => setGameMode('auth')}
-                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap"
+                    className="px-4 py-2 bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap"
                   >
                     👑 Premium
                   </button>
                   <button
                     onClick={() => setGameMode('3d')}
-                    className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap"
+                    className="px-4 py-2 bg-linear-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap"
                   >
                     🌌 3D Prototype
                   </button>
@@ -668,7 +668,7 @@ export default function OutpostOddityGame() {
                       setTier('admin');
                       setGameMode('auth');
                     }}
-                    className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap"
+                    className="px-4 py-2 bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap"
                   >
                     🛡️ Admin
                   </button>
@@ -677,7 +677,7 @@ export default function OutpostOddityGame() {
                       setTier('free_with_ads');
                       setGameMode('auth');
                     }}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap"
+                    className="px-4 py-2 bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-medium rounded-lg transition-all whitespace-nowrap"
                   >
                     📺 Standard
                   </button>
@@ -685,7 +685,7 @@ export default function OutpostOddityGame() {
               )}
               <button
                 onClick={toggleAudio}
-                className="p-2 bg-slate-800/50 rounded-full border border-slate-700/50 hover:bg-purple-500/30 flex-shrink-0"
+                className="p-2 bg-slate-800/50 rounded-full border border-slate-700/50 hover:bg-purple-500/30 shrink-0"
                 title={isMuted ? 'Unmute Music' : 'Mute Music'}
               >
                 {isMuted ? '🔇' : '🔊'}
@@ -698,7 +698,7 @@ export default function OutpostOddityGame() {
         {gameMode === 'auth' && <AuthView />}
         {gameMode === 'dashboard' && <DashboardView />}
         {gameMode === 'admin' && <AdminView />}
-        {gameMode === '3d' && <Game3DScene />}
+        {gameMode === '3d' && <Game3DScene onExit={() => setGameMode('menu')} />}
         {gameMode === 'completed' && <CompletedView />}
       </div>
     </AudioContextProvider>

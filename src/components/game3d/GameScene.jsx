@@ -1,11 +1,11 @@
 /*! OutPost Oddity - 3D Game Scene (React Three Fiber) */
 'use client';
 
+import * as THREE from 'three'
 import { Canvas, useThree } from '@react-three/fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { useEffect, useRef, useState } from 'react'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { AmbientLight, DirectionalLight, Fog } from 'three'
 import { useDrag } from '@react-three/drei'
 
 export default function GameScene({

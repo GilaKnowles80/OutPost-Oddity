@@ -14,19 +14,14 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    // ... rest of function
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 
     // Find user
     const result = await query(
       'SELECT id, email, password_hash, username, country, currency, user_type, is_admin, is_premium, token_balance, last_login FROM premium_users WHERE email = $1',
-      [email.toLowerCase()]
+      [normalizedEmail]
     );
 
     if (result.rows.length === 0) {
@@ -45,8 +40,14 @@ export async function POST(request) {
       await query(
         `INSERT INTO player_activity (user_id, ip_address, action, details, risk_score, flagged)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [user.id, request.headers.get('x-forwarded-for') || 'unknown', 'failed_login',
-         JSON.stringify({ email }), 30, true]
+        [
+          user.id,
+          ipAddress,
+          'failed_login',
+          JSON.stringify({ email: normalizedEmail }),
+          30,
+          true,
+        ]
       );
 
       return NextResponse.json(
@@ -69,8 +70,13 @@ export async function POST(request) {
     await query(
       `INSERT INTO player_activity (user_id, ip_address, action, details, risk_score)
        VALUES ($1, $2, $3, $4, $5)`,
-      [user.id, request.headers.get('x-forwarded-for') || 'unknown', 'login',
-       JSON.stringify({ email, username: user.username }), 0]
+      [
+        user.id,
+        ipAddress,
+        'login',
+        JSON.stringify({ email: normalizedEmail, username: user.username }),
+        0,
+      ]
     );
 
     const response = NextResponse.json({
@@ -101,8 +107,8 @@ export async function POST(request) {
     });
 
     return response;
-            } catch (error) {
-                console.error('Login error:', error);
+  } catch (error) {
+    console.error('Login error:', error);
     return NextResponse.json(
       { success: false, error: 'Login failed. Please try again.' },
       { status: 500 }

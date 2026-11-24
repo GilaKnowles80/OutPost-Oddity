@@ -23,7 +23,7 @@ export default function AdBanner() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:bottom-8 md:left-[10%] md:right-[10%] md:w-auto md:max-w-xs z-40">
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 border border-purple-500/30 rounded-xl p-4 md:p-6 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+      <div className="bg-linear-to-r from-slate-800 to-slate-900 border border-purple-500/30 rounded-xl p-4 md:p-6 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">

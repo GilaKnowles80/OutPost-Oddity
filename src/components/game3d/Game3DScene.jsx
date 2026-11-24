@@ -7,9 +7,17 @@ import SpaceCharacter from './SpaceCharacter';
 import PlanetTerrain from './PlanetTerrain';
 import OutpostStructures from './OutpostStructures';
 
-export default function Game3DScene() {
+export default function Game3DScene({ onExit }) {
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950">
+      {onExit && (
+        <button
+          onClick={onExit}
+          className="absolute top-5 right-5 z-50 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg transition-all cursor-pointer"
+        >
+          ← Return to Menu
+        </button>
+      )}
       <Canvas
         shadows
         camera={{ position: [0, 6, 12], fov: 75 }}
