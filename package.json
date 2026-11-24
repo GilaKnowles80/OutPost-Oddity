@@ -19,6 +19,7 @@
     "pwa:generate-icons": "node -e \"require('fs').copyFileSync('public/logo.png','public/icon-192.png');require('fs').copyFileSync('public/logo.png','public/icon-512.png');require('fs').copyFileSync('public/logo.png','public/apple-touch-icon.png');console.log('PWA icons generated from logo.png')\""
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1176.0",
     "@capacitor/android": "^8.6.0",
     "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.6.0",
@@ -26,6 +27,8 @@
     "@capacitor/keyboard": "^8.0.6",
     "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.4",
+    "@neon/config": "^1.14.6",
+    "@neon/env": "^2.1.9",
     "@neondatabase/serverless": "^0.9.5",
     "@react-three/cannon": "^6.6.0",
     "@react-three/drei": "^10.7.9",
