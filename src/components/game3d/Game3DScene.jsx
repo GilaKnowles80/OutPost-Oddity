@@ -43,7 +43,7 @@ export default function Game3DScene({ onExit }) {
       {onExit && (
         <button
           onClick={onExit}
-          className="absolute top-5 right-5 z-50 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg transition-all cursor-pointer"
+          className="absolute top-5 right-5 z-50 px-4 py-2 bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg transition-all cursor-pointer"
         >
           ← Return to Menu
         </button>
