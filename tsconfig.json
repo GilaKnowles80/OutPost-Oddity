@@ -29,12 +29,12 @@
     "target": "ES2017"
   },
   "include": [
-    "next-env.d.ts",
+    "next-env.d.js",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
-  ],
+, "src/app/api/paypal/webhook/route.js", "src/app/api/paypal/subscription-webhook/route.js", "src/app/api/paypal/create-subscription/route.js", "src/app/api/paypal/create-order/route.js", "src/app/api/paypal/capture-order/route.js", "src/app/api/auth/register/route.js", "src/app/api/auth/logout/route.js", "src/app/api/auth/login/route.js", "src/app/api/admin/players/route.js", "src/app/api/admin/monitor/route.js", "src/data/episodes/spooky_halloween.js", "src/types/env.d.js", "src/middleware.js", "tailwind.config.js", "capacitor.config.js"  ],
   "exclude": [
     "node_modules"
   ]

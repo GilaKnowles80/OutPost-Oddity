@@ -1,4 +1,4 @@
-$path = 'c:\Users\Gila\outpost-oddity\src\app\page.tsx'
+$path = 'c:\Users\Gila\outpost-oddity\src\app\page.jsx'
 $lines = Get-Content -LiteralPath $path
 
 # Find and remove the old EPISODES loop and getEpisodeTheme function

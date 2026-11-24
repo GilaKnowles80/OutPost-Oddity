@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0",
+  "playerName": "DrArisThorne",
+  "createdAt": 1730000000000,
+  "lastModified": 1730000000000,
+  "gridSize": 1,
+  "buildings": [
+    {
+      "id": "bld_001",
+      "type": "house",
+      "position": {"x": 0, "y": 0, "z": 0},
+      "rotation": 0,
+      "scale": 4,
+      "purchasedAt": 1730000100000,
+      "unlocked": true
+    },
+    {
+      "id": "bld_002", 
+      "type": "farm",
+      "position": {"x": 5, "y": 0, "z": 0},
+      "rotation": 90,
+      "scale": 6,
+      "purchasedAt": 1730000200000,
+      "unlocked": true
+    }
+  ],
+  "resources": {
+    "wood": 45,
+    "stone": 12,
+    "crop": 8,
+    "population": 3,
+    "populationMax": 10
+  },
+  "metadata": {
+    "totalBuildings": 2,
+    "totalValue": 1500,
+    "notes": "Starting township layout"
+  }
+}

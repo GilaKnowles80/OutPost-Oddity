@@ -42,3 +42,19 @@ Maintained by [@GilaKnowles80](https://github.com/GilaKnowles80).
 License: MIT License — see LICENSE file for full details.
 
 OutPost Oddity™
+
+┌─────────────────────────────────────────────────────────────────┐
+│                    OUTPOST ODDITY GAME                          │
+├─────────────────────┬─────────────────────┬───────────────────────┤
+│  3D GAME SCENE      │  TOWNSHIP BUILDER   │  STORAGE SYSTEM        │
+│  (GameScene.jsx)    │ (TownshipBuilder)   │  (localStorage + API) │
+├─────────────────────┼─────────────────────┼───────────────────────┤
+│ • Renders ship GLTF │ • Places buildings  │ • Saves to           │
+│ • First-person cam  │ • Drag placement    │   localStorage       │
+│ • Terrain generation│ • Rotation controls │ • API backup (optional)│
+│ • Resource system   │ • Delete/upgrade    │ • Export/import      │
+└─────────────────────┴─────────────────────┴───────────────────────┘
+           │                   │                     │
+           ▼                   ▼                     ▼
+   Real-time 3D         Grid-aligned        JSON format
+   rendering           building placement   with metadata
