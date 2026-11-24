@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/neondatabase/server';
+import { sendWelcomeEmail } from '@/lib/resend';
 import bcrypt from 'bcryptjs';
 
 const SALT_ROUNDS = 12;
@@ -64,6 +65,9 @@ export async function POST(request) {
           IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='premium_users' AND column_name='is_premium') THEN
             ALTER TABLE premium_users ADD COLUMN is_premium BOOLEAN DEFAULT FALSE;
           END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='premium_users' AND column_name='password_hash') THEN
+            ALTER TABLE premium_users ADD COLUMN password_hash VARCHAR(255);
+          END IF;
           IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='premium_users' AND column_name='password_hash') THEN
             ALTER TABLE premium_users ALTER COLUMN password_hash DROP NOT NULL;
           END IF;
@@ -124,6 +128,15 @@ export async function POST(request) {
         0,
       ]
     );
+
+    // Send welcome email asynchronously via Resend
+    sendWelcomeEmail({
+      to: normalizedEmail,
+      username: trimmedUsername,
+      userType: user.user_type,
+    }).catch((emailErr) => {
+      console.warn('Welcome email notification warning:', emailErr?.message || emailErr);
+    });
 
     return NextResponse.json({
       success: true,

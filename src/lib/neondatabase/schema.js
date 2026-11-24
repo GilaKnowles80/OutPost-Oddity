@@ -9,6 +9,7 @@ export const PREMIUM_USERS_SCHEMA = `
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     username VARCHAR(100) NOT NULL,
+    password_hash VARCHAR(255),
     country VARCHAR(2) NOT NULL DEFAULT 'US',
     currency VARCHAR(3) NOT NULL DEFAULT 'USD',
     user_type VARCHAR(20) NOT NULL DEFAULT 'free_with_ads', -- 'admin', 'free_with_ads', 'premium'
@@ -51,7 +52,7 @@ export const PLAYER_ACTIVITY_SCHEMA = `
   CREATE TABLE IF NOT EXISTS player_activity (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES premium_users(id) ON DELETE SET NULL,
-    ip_address INET NOT NULL,
+    ip_address INET,
     user_agent TEXT,
     action VARCHAR(100) NOT NULL, -- 'login', 'logout', 'purchase', 'level_complete', 'token_spend'
     details JSONB DEFAULT '{}',
@@ -75,32 +76,48 @@ export const ADMIN_AUDIT_LOG_SCHEMA = `
 `;
 
 // Indexes for performance and security monitoring
-export const SECURITY_INDEXES_SCHEMA = `
-  CREATE INDEX IF NOT EXISTS idx_player_activity_user_id ON player_activity(user_id);
-  CREATE INDEX IF NOT EXISTS idx_player_activity_created_at ON player_activity(created_at);
-  CREATE INDEX IF NOT EXISTS idx_player_activity_flagged ON player_activity(flagged);
-  CREATE INDEX IF NOT EXISTS idx_token_transactions_user_id ON token_transactions(user_id);
-  CREATE INDEX IF NOT EXISTS idx_token_transactions_status ON token_transactions(status);
-  CREATE INDEX IF NOT EXISTS idx_premium_users_email ON premium_users(email);
-  CREATE INDEX IF NOT EXISTS idx_premium_users_magic_link_token ON premium_users(magic_link_token);
-  CREATE INDEX IF NOT EXISTS idx_premium_users_is_premium ON premium_users(is_premium);
-  CREATE INDEX IF NOT EXISTS idx_premium_users_paypal_subscription_id ON premium_users(paypal_subscription_id);
-  CREATE INDEX IF NOT EXISTS idx_premium_users_subscription_status ON premium_users(subscription_status);
-`;
+export const SECURITY_INDEXES = [
+  'CREATE INDEX IF NOT EXISTS idx_player_activity_user_id ON player_activity(user_id)',
+  'CREATE INDEX IF NOT EXISTS idx_player_activity_created_at ON player_activity(created_at)',
+  'CREATE INDEX IF NOT EXISTS idx_player_activity_flagged ON player_activity(flagged)',
+  'CREATE INDEX IF NOT EXISTS idx_token_transactions_user_id ON token_transactions(user_id)',
+  'CREATE INDEX IF NOT EXISTS idx_token_transactions_status ON token_transactions(status)',
+  'CREATE INDEX IF NOT EXISTS idx_premium_users_email ON premium_users(email)',
+  'CREATE INDEX IF NOT EXISTS idx_premium_users_magic_link_token ON premium_users(magic_link_token)',
+  'CREATE INDEX IF NOT EXISTS idx_premium_users_is_premium ON premium_users(is_premium)',
+  'CREATE INDEX IF NOT EXISTS idx_premium_users_paypal_subscription_id ON premium_users(paypal_subscription_id)',
+  'CREATE INDEX IF NOT EXISTS idx_premium_users_subscription_status ON premium_users(subscription_status)',
+];
 
-export async function initializeDatabase(pool) {
-  const client = await pool.connect();
+export async function initializeDatabase(executor) {
+  const runQuery = typeof executor === 'function' 
+    ? executor 
+    : async (text, params) => {
+        const client = await executor.connect();
+        try {
+          return await client.query(text, params);
+        } finally {
+          client.release();
+        }
+      };
+
   try {
-    await client.query(PREMIUM_USERS_SCHEMA);
-    await client.query(TOKEN_TRANSACTIONS_SCHEMA);
-    await client.query(PLAYER_ACTIVITY_SCHEMA);
-    await client.query(ADMIN_AUDIT_LOG_SCHEMA);
-    await client.query(SECURITY_INDEXES_SCHEMA);
+    await runQuery(PREMIUM_USERS_SCHEMA);
+    await runQuery(TOKEN_TRANSACTIONS_SCHEMA);
+    await runQuery(PLAYER_ACTIVITY_SCHEMA);
+    await runQuery(ADMIN_AUDIT_LOG_SCHEMA);
+
+    for (const indexSql of SECURITY_INDEXES) {
+      await runQuery(indexSql);
+    }
 
     // Migrate existing tables: add all missing columns
-    await client.query(`
+    await runQuery(`
       DO $$
       BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'password_hash') THEN
+          ALTER TABLE premium_users ADD COLUMN password_hash VARCHAR(255);
+        END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'user_type') THEN
           ALTER TABLE premium_users ADD COLUMN user_type VARCHAR(20) NOT NULL DEFAULT 'free_with_ads';
         END IF;
@@ -116,9 +133,6 @@ export async function initializeDatabase(pool) {
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'magic_link_expires_at') THEN
           ALTER TABLE premium_users ADD COLUMN magic_link_expires_at TIMESTAMP WITH TIME ZONE;
         END IF;
-        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'premium_users' AND column_name = 'password_hash') THEN
-          ALTER TABLE premium_users ALTER COLUMN password_hash DROP NOT NULL;
-        END IF;
       END $$;
     `);
 
@@ -126,7 +140,5 @@ export async function initializeDatabase(pool) {
   } catch (error) {
     console.error('❌ Database schema initialization failed:', error);
     throw error;
-  } finally {
-    client.release();
   }
 }
