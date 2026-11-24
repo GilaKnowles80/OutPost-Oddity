@@ -106,7 +106,31 @@ function getEpisodeSubtitle(episode) {
   return EPISODE_SUBTITLES[((episode - 1) % EPISODE_SUBTITLES.length + EPISODE_SUBTITLES.length) % EPISODE_SUBTITLES.length];
 }
 
-const LEVEL_TYPE_NAMES = ['adventure', 'funny', 'farming', 'survival', 'building', 'comedy'];
+function getLevelType(episode, level) {
+  // Returns the level type for a given episode and level (1-10)
+  // Cycles through LEVEL_TYPE_NAMES based on episode and level
+  const typeIndex = ((episode + level) % LEVEL_TYPE_NAMES.length + LEVEL_TYPE_NAMES.length) % LEVEL_TYPE_NAMES.length;
+  return LEVEL_TYPE_NAMES[typeIndex];
+}
+
+function getLevelsForEpisode(episode) {
+  // Returns an array of level types for levels 1-10 in a given episode
+  const levels = [];
+  for (let i = 1; i <= 10; i++) {
+    levels.push({
+      level: i,
+      type: getLevelType(episode, i)
+    });
+  }
+  return levels;
+}
+
+function isEpisodeValid(episode) {
+  // Checks if episode is within valid range (1-200)
+  return episode >= 1 && episode <= 200;
+}
+
+const LEVEL_TYPE_NAMES = ['adventure', 'survival', 'building', 'harvesting'];
 
 function getLevelStory(ep, lv, type) {
   const planetNames = ['Aurelia-7', 'Zorglex-9', 'Glimmerwaith', 'Quarkara', 'Nebulos Prime', 'Stardust Falls', 'Cosmo Canyon', 'Nova Vista', 'Orion Belt', 'Lyra Nine', 'Vega Prime'];
