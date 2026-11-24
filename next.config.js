@@ -40,11 +40,18 @@ const nextConfig = {
     ];
   },
   images: {
-    domains: ['localhost', 'ep-crimson-field-a1tjty5u-pooler.ap-southeast-1.aws.neon.tech'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'www.paypal.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.paypalobjects.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.neon.tech',
       },
     ],
   },
