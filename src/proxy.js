@@ -18,7 +18,7 @@ function rateLimit(ip) {
   return { allowed, remaining };
 }
 
-export function middleware(request) {
+export function proxy(request) {
   const ip = getClientIp(request);
   const { allowed, remaining } = rateLimit(ip);
 
