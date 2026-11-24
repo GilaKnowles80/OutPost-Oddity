@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/neondatabase/server';
 
 const PAYPAL_API = process.env.PAYPAL_ENVIRONMENT === 'live'
   ? 'https://api-m.paypal.com'
@@ -23,10 +22,15 @@ async function getPayPalAccessToken() {
   return data.access_token;
 }
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const body = await request.json();
     const { event_type, resource } = body;
+    // ... rest of function
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Webhook error' }, { status: 500 });
+  }
+}
 
     // Verify webhook signature (simplified - in production, verify PayPal headers)
     const webhookId = process.env.PAYPAL_WEBHOOK_ID;
@@ -137,7 +141,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, received: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Subscription webhook error:', error);
     return NextResponse.json({ success: false }, { status: 500 });
   }

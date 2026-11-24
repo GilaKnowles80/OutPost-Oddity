@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/neondatabase/server';
 
-export async function GET(request: Request) {
+export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const adminId = searchParams.get('adminId');
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
       flaggedUsers: flaggedUsers.rows,
       timeRange,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Admin monitor error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch security data' },

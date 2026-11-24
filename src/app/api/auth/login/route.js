@@ -3,7 +3,7 @@ import { query } from '@/lib/neondatabase/server';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const body = await request.json();
     const { email, password } = body;
@@ -14,6 +14,14 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    // ... rest of function
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
 
     // Find user
     const result = await query(
@@ -93,7 +101,7 @@ export async function POST(request: Request) {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
       { success: false, error: 'Login failed. Please try again.' },

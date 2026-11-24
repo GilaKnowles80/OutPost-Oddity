@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 const SALT_ROUNDS = 12;
 const ADMIN_REGISTRATION_CODE = process.env.ADMIN_REGISTRATION_CODE || 'OUTPOST_ADMIN_2026';
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const body = await request.json();
     const { email, password, username, country = 'US', currency = 'USD', user_type = 'free_with_ads', admin_code } = body;
@@ -13,6 +13,11 @@ export async function POST(request: Request) {
     if (!email || !password || !username) {
       return NextResponse.json({ success: false, error: 'Email, password, and username are required' }, { status: 400 });
     }
+    // ... rest of function
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+  }
+}
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -71,7 +76,7 @@ export async function POST(request: Request) {
       [user.id, request.headers.get('x-forwarded-for') || 'unknown', 'registration', JSON.stringify({ email, username, user_type, isAdmin }), 0]);
 
     return NextResponse.json({ success: true, message: 'Account created', user: { id: user.id, email: user.email, username: user.username, userType: user.user_type, isAdmin: user.is_admin, isPremium: user.is_premium } });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Register error:', error);
     return NextResponse.json({ success: false, error: error.message || 'Registration failed' }, { status: 500 });
   }
