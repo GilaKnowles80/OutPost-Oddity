@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { query } from '@/lib/neondatabase/server';
 
-const PAYPAL_API = process.env.PAYPAL_ENVIRONMENT === 'live'
-  ? 'https://api-m.paypal.com'
-  : 'https://api-m.sandbox.paypal.com';
+const PAYPAL_API =
+  process.env.PAYPAL_ENVIRONMENT === 'live'
+    ? 'https://api-m.paypal.com'
+    : 'https://api-m.sandbox.paypal.com';
 
 async function getPayPalAccessToken() {
   const auth = Buffer.from(
@@ -12,39 +14,82 @@ async function getPayPalAccessToken() {
   const response = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
-      'Authorization': `Basic ${auth}`,
+      Authorization: `Basic ${auth}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: 'grant_type=client_credentials',
   });
 
+  if (!response.ok) {
+    throw new Error(`PayPal OAuth failed with status ${response.status}`);
+  }
+
   const data = await response.json();
   return data.access_token;
 }
 
-export async function POST(request) {
-  try {
-    const body = await request.json();
-    const { event_type, resource } = body;
-    // ... rest of function
-  } catch (error) {
-    return NextResponse.json({ success: false, error: 'Webhook error' }, { status: 500 });
+async function verifyPayPalWebhook(request, body, webhookId) {
+  const transmissionId = request.headers.get('paypal-transmission-id');
+  const transmissionTime = request.headers.get('paypal-transmission-time');
+  const certUrl = request.headers.get('paypal-cert-url');
+  const authAlgo = request.headers.get('paypal-auth-algo');
+  const transmissionSig = request.headers.get('paypal-transmission-sig');
+
+  if (!transmissionId || !transmissionTime || !certUrl || !authAlgo || !transmissionSig) {
+    return false;
   }
+
+  const accessToken = await getPayPalAccessToken();
+  const verifyRes = await fetch(`${PAYPAL_API}/v1/notifications/verify-webhook-signature`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      auth_algo: authAlgo,
+      cert_url: certUrl,
+      transmission_id: transmissionId,
+      transmission_sig: transmissionSig,
+      transmission_time: transmissionTime,
+      webhook_id: webhookId,
+      webhook_event: body,
+    }),
+  });
+
+  if (!verifyRes.ok) return false;
+  const verifyData = await verifyRes.json();
+  return verifyData.verification_status === 'SUCCESS';
 }
 
-    // Verify webhook signature (simplified - in production, verify PayPal headers)
+export async function POST(request) {
+  try {
     const webhookId = process.env.PAYPAL_WEBHOOK_ID;
-
     if (!webhookId) {
       console.error('PayPal webhook ID not configured');
-      return NextResponse.json({ success: false }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Webhook not configured' }, { status: 500 });
     }
 
-    const subscriptionId = resource.id;
+    const body = await request.json();
+    const { event_type, resource } = body;
 
-    // Handle different subscription webhook events
+    if (!event_type || !resource) {
+      return NextResponse.json({ success: false, error: 'Invalid webhook payload' }, { status: 400 });
+    }
+
+    // Verify PayPal webhook signature in production
+    if (process.env.PAYPAL_ENVIRONMENT === 'live') {
+      const isValid = await verifyPayPalWebhook(request, body, webhookId);
+      if (!isValid) {
+        console.error('Invalid PayPal webhook signature');
+        return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 401 });
+      }
+    }
+
+    const subscriptionId = resource.billing_agreement_id || resource.id;
+
+    // 1. Subscription activated - grant premium status
     if (event_type === 'BILLING.SUBSCRIPTION.ACTIVATED') {
-      // Subscription activated - grant premium status
       await query(
         `UPDATE premium_users 
          SET is_premium = TRUE,
@@ -55,7 +100,6 @@ export async function POST(request) {
         [subscriptionId]
       );
 
-      // Record subscription activation
       await query(
         `INSERT INTO token_transactions (user_id, transaction_type, amount, currency, usd_amount, paypal_transaction_id, status, description)
          SELECT id, 'subscription', 0, currency, 0, $1, 'completed', 'PayPal subscription activated'
@@ -64,8 +108,8 @@ export async function POST(request) {
       );
     }
 
+    // 2. Subscription cancelled
     if (event_type === 'BILLING.SUBSCRIPTION.CANCELLED') {
-      // Subscription cancelled
       await query(
         `UPDATE premium_users 
          SET subscription_status = 'cancelled',
@@ -76,8 +120,8 @@ export async function POST(request) {
       );
     }
 
+    // 3. Subscription expired
     if (event_type === 'BILLING.SUBSCRIPTION.EXPIRED') {
-      // Subscription expired
       await query(
         `UPDATE premium_users 
          SET subscription_status = 'expired',
@@ -89,8 +133,11 @@ export async function POST(request) {
       );
     }
 
-    if (event_type === 'BILLING.SUBSCRIPTION.SUSPENDED') {
-      // Subscription suspended (e.g., payment failure)
+    // 4. Subscription suspended or payment failed
+    if (
+      event_type === 'BILLING.SUBSCRIPTION.SUSPENDED' ||
+      event_type === 'BILLING.SUBSCRIPTION.PAYMENT.FAILED'
+    ) {
       await query(
         `UPDATE premium_users 
          SET subscription_status = 'suspended',
@@ -100,24 +147,17 @@ export async function POST(request) {
       );
     }
 
-    if (event_type === 'BILLING.SUBSCRIPTION.PAYMENT.FAILED') {
-      // Payment failed for a subscription cycle
-      await query(
-        `UPDATE premium_users 
-         SET subscription_status = 'suspended',
-             updated_at = CURRENT_TIMESTAMP
-         WHERE paypal_subscription_id = $1`,
-        [subscriptionId]
-      );
-    }
-
-    if (event_type === 'BILLING.SUBSCRIPTION.PAYMENT.SUCCESS') {
-      // Successful recurring payment - could grant tokens or extend premium
-      const customId = resource.custom_id; // userId if set
-      const amount = parseFloat(resource.amount?.value || '0');
-      const currency = resource.amount?.currency_code || 'USD';
-      const tokensPerUnit = currency === 'EUR' ? 10 : 10;
+    // 5. Successful recurring subscription payment (PAYMENT.SALE.COMPLETED or BILLING.SUBSCRIPTION.PAYMENT.SUCCESS)
+    if (
+      event_type === 'BILLING.SUBSCRIPTION.PAYMENT.SUCCESS' ||
+      event_type === 'PAYMENT.SALE.COMPLETED'
+    ) {
+      const customId = resource.custom_id || resource.custom;
+      const amount = parseFloat(resource.amount?.total || resource.amount?.value || '0');
+      const currency = resource.amount?.currency || resource.amount?.currency_code || 'USD';
+      const tokensPerUnit = 10;
       const tokensEarned = Math.floor(amount * tokensPerUnit);
+      const transactionId = resource.id || subscriptionId;
 
       if (customId) {
         await query(
@@ -126,6 +166,7 @@ export async function POST(request) {
                total_tokens_purchased = total_tokens_purchased + $1,
                total_spent = total_spent + $2,
                is_premium = TRUE,
+               subscription_status = 'active',
                premium_expires_at = CURRENT_TIMESTAMP + INTERVAL '1 year',
                updated_at = CURRENT_TIMESTAMP
            WHERE id = $3`,
@@ -135,7 +176,14 @@ export async function POST(request) {
         await query(
           `INSERT INTO token_transactions (user_id, transaction_type, amount, currency, usd_amount, paypal_transaction_id, status, description)
            VALUES ($1, 'subscription_payment', $2, $3, $4, $5, 'completed', $6)`,
-          [customId, tokensEarned, currency, amount, subscriptionId, `Recurring subscription payment: ${tokensEarned} Space Tokens for ${amount} ${currency}`]
+          [
+            customId,
+            tokensEarned,
+            currency,
+            amount,
+            transactionId,
+            `Recurring subscription payment: ${tokensEarned} Space Tokens for ${amount} ${currency}`,
+          ]
         );
       }
     }
@@ -143,6 +191,9 @@ export async function POST(request) {
     return NextResponse.json({ success: true, received: true });
   } catch (error) {
     console.error('Subscription webhook error:', error);
-    return NextResponse.json({ success: false }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message || 'Webhook error' },
+      { status: 500 }
+    );
   }
 }
