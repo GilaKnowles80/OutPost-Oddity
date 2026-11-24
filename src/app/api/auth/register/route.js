@@ -129,14 +129,16 @@ export async function POST(request) {
       ]
     );
 
-    // Send welcome email asynchronously via Resend
-    sendWelcomeEmail({
-      to: normalizedEmail,
-      username: trimmedUsername,
-      userType: user.user_type,
-    }).catch((emailErr) => {
-      console.warn('Welcome email notification warning:', emailErr?.message || emailErr);
-    });
+    // Send welcome email asynchronously via Resend (only when RESEND_API_KEY is configured)
+    if (process.env.RESEND_API_KEY) {
+      sendWelcomeEmail({
+        to: normalizedEmail,
+        username: trimmedUsername,
+        userType: user.user_type,
+      }).catch((emailErr) => {
+        console.warn('Welcome email notification warning:', emailErr?.message || emailErr);
+      });
+    }
 
     return NextResponse.json({
       success: true,
